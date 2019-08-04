@@ -20,22 +20,49 @@ export default {
   },
   data() {
     return {
-      todos: [
-        { id: 1, title: "Todo One", completed: false },
-        { id: 2, title: "Todo Two", completed: true },
-        { id: 3, title: "Todo Three", completed: false }
-      ]
+      todos: []
     };
   },
   methods: {
     delTodo(id) {
-      this.todos = this.todos.filter(todo => {
-        return todo.id !== id;
-      });
+      fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+        method: "DELETE"
+      })
+        .then(response => response.json())
+        .then(res => {
+          this.todos = this.todos.filter(todo => {
+            return todo.id !== id;
+          });
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
     },
     addTodo(newTodo) {
-      this.todos = [...this.todos, newTodo];
+      const { title, completed } = newTodo;
+
+      fetch("https://jsonplaceholder.typicode.com/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title, completed })
+      })
+        .then(response => response.json())
+        .then(response => {
+          console.log("RESPONSE==>>", response);
+          this.todos = [...this.todos, response];
+        })
+        .catch(err => console.log("Error:", err));
     }
+  },
+  created() {
+    fetch("https://jsonplaceholder.typicode.com/todos?_limit=5")
+      .then(response => response.json())
+      .then(json => {
+        this.todos = json;
+      });
+    //http://jsonplaceholder.typicode.com/todos
   }
 };
 </script>
